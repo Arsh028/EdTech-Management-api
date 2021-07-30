@@ -36,12 +36,13 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  // roleid: {
-  //   default: null,
-  // },
   updateDate: {
     type: Date,
     default: Date.now,
+  },
+  roleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'role',
   },
 });
 

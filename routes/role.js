@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const Role = require('../models/Role');
+const auth = require('../middlewares/auth');
 const { check, validationResult } = require('express-validator');
+const User = require('../models/User');
+const Role = require('../models/Role');
 
 // @route POST /role
 // @des  creates a new role
@@ -11,6 +13,7 @@ router.post(
   '/',
   [
     check('name', 'Name is required').not().isEmpty(),
+    //TODO check if scope is an array
     // check('scope', 'Please include a scope').isLength({ min: 1 }),
   ],
   async (req, res) => {
@@ -32,7 +35,7 @@ router.post(
       if (role) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'role already exists' }] });
+          .json({ status: true, errors: [{ message: 'role already exists' }] });
       }
       role = new Role({
         name,
@@ -55,8 +58,6 @@ router.post(
           },
         },
       });
-
-      res.send('ROLE is registered');
     } catch (err) {
       console.log(err);
       console.log('error in POST /role');
@@ -65,4 +66,63 @@ router.post(
   }
 );
 
+// @route GET /role
+// @des  gets all roles
+// @acess Private (role-get)
+
+router.get('/', auth, async (req, res) => {
+  //console.log('req.user = ' + (await JSON.stringify(req.user)));
+
+  let user = await User.findOne({ roleId: req.user.user.roleId });
+  //console.log('user = ' + user);
+
+  let id = await Role.findOne({ _id: user.roleId, scopes: 'user-get' });
+  //console.log('id = ' + id);
+  if (id) {
+    let allroles = await Role.find();
+    console.log('allroles = ' + allroles);
+    return res.status(200).json({
+      status: true,
+      content: {
+        data: allroles,
+      },
+    });
+  }
+
+  return res.status(200).json({
+    status: false,
+  });
+});
+
 module.exports = router;
+// {
+//   "content": {
+//     "data": [
+//       {
+//         "_id": "60265e46d560814bb5a8e8bc",
+//         "name": "Manager",
+//         "scopes": [
+//           "user-get",
+//           "school-get",
+//           "school-create"
+//         ],
+//         "created": "2021-02-12T10:55:51.306Z",
+//         "updated": null
+//       },
+//       {
+//         "_id": "60265e46d560814bb5a8e8bd",
+//         "name": "Administrator",
+//         "scopes": [
+//           "user-get",
+//           "student-get",
+//           "student-create",
+//           "role-get",
+//           "school-get",
+//           "school-create"
+//         ],
+//         "created": "2021-02-12T10:55:51.306Z",
+//         "updated": null
+//       }
+//     ]
+//   }
+// }
