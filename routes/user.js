@@ -9,6 +9,8 @@ require('dotenv').config();
 const jwtsecret = process.env.JWT_SECRET;
 
 const User = require('../models/User');
+const auth = require('../middlewares/auth');
+const Role = require('../models/Role');
 
 // @route POST /signup
 // @des  Register a user
@@ -141,6 +143,61 @@ router.post('/signin', async (req, res) => {
         .status(400)
         .json({ status: false, message: 'something went wrong.' });
     }
+  });
+});
+
+// @route POST /signin
+// @des  get all users
+// @acess Private (user-get)
+router.get('/', auth, async (req, res) => {
+  //console.log('req.user = ' + (await JSON.stringify(req.user)));
+
+  let user = await User.findOne({ roleId: req.user.user.roleId });
+  //console.log('user = ' + user);
+
+  let id = await Role.findOne({ _id: user.roleId, scopes: 'user-get' });
+  //console.log('id = ' + id);
+  if (id) {
+    let alluser = await User.find();
+    console.log('alluser = ' + alluser);
+    return res.status(200).json({
+      status: true,
+      content: {
+        data: alluser,
+      },
+    });
+  }
+
+  return res.status(200).json({
+    status: false,
+  });
+});
+
+// @route GET /
+// @des  get single user
+// @acess Private (user-get)
+router.get('/:id', auth, async (req, res) => {
+  //console.log('req.user = ' + (await JSON.stringify(req.user)));
+
+  let user = await User.findOne({ roleId: req.user.user.roleId });
+  //console.log('user = ' + user);
+
+  let idd = await Role.findOne({ _id: user.roleId, scopes: 'user-get' });
+  //console.log('id = ' + idd);
+  //console.log('req.params.id = ' + req.params.id);
+  if (idd) {
+    let single_user = await User.findOne({ _id: req.params.id });
+    console.log('single_user = ' + single_user);
+    return res.status(200).json({
+      status: true,
+      content: {
+        data: single_user,
+      },
+    });
+  }
+
+  return res.status(200).json({
+    status: false,
   });
 });
 
