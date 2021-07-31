@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const merge = require('lodash.merge');
+const merge = require('deepmerge');
 
 const User = require('../models/User');
 const auth = require('../middlewares/auth');
@@ -93,28 +93,28 @@ router.get('/students', auth, async (req, res) => {
   if (roleid) {
     let allSchools = await School.find();
     console.log('allschools = ' + allSchools);
-    const length = Object.keys(allSchools).length;
     let obj = {};
-    let merged = { status: true };
-    for (let i = 0; i < length; i++) {
+    let arr = [];
+    for (let i = 0; i < Object.keys(allSchools).length; i++) {
       let students = await Student.find({ schoolId: allSchools[i]._id });
       obj = {
-        content: {
-          data: {
-            _id: allSchools[i]._id,
-            name: allSchools[i].name,
-            city: allSchools[i].city,
-            state: allSchools[i].state,
-            country: allSchools[i].country,
-            students: [students],
-          },
+        data: {
+          _id: allSchools[i]._id,
+          name: allSchools[i].name,
+          city: allSchools[i].city,
+          state: allSchools[i].state,
+          country: allSchools[i].country,
+          students: [students],
         },
       };
       //console.log('obj: ' + JSON.stringify(obj));
-      merged = merge(merged, obj);
-      //console.log('merged obj:' + JSON.stringify(merged));
+      //put objs into array
+      arr = [...arr, obj];
+      //console.log('arr = ' + JSON.stringify(arr));
     }
-    return res.status(200).json(obj);
+
+    // console.log('merged obj:' + JSON.stringify(merged));
+    return res.status(200).json({ status: true, content: arr });
   }
 });
 
