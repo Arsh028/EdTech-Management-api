@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const merge = require('lodash.merge');
 
 const User = require('../models/User');
 const auth = require('../middlewares/auth');
@@ -54,10 +55,11 @@ router.post('/', auth, async (req, res) => {
   }
   return res.status(400).json({
     status: false,
+    message: 'unauthorized',
   });
 });
 
-// @route POST /
+// @route GET /
 // @des  get all schools
 // @acess Private (school-get)
 router.get('/', auth, async (req, res) => {
@@ -78,6 +80,9 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// @route GET /students
+// @des  get all schools info with students
+// @acess Private (school-students)
 router.get('/students', auth, async (req, res) => {
   let user = await User.findOne({ roleId: req.user.user.roleId });
   //console.log('user = ' + user);
@@ -105,9 +110,9 @@ router.get('/students', auth, async (req, res) => {
           },
         },
       };
-      console.log('obj: ' + JSON.stringify(obj));
-      merged = { ...merged, ...obj };
-      console.log('merged obj:' + JSON.stringify(merged));
+      //console.log('obj: ' + JSON.stringify(obj));
+      merged = merge(merged, obj);
+      //console.log('merged obj:' + JSON.stringify(merged));
     }
     return res.status(200).json(obj);
   }

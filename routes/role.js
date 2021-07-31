@@ -14,7 +14,7 @@ router.post(
   [
     check('name', 'Name is required').not().isEmpty(),
     //TODO check if scope is an array
-    // check('scope', 'Please include a scope').isLength({ min: 1 }),
+    check('scope', 'Please include a scope').exists(),
   ],
   async (req, res) => {
     console.log('request body =');
@@ -80,7 +80,7 @@ router.get('/', auth, async (req, res) => {
   //console.log('id = ' + id);
   if (id) {
     let allroles = await Role.find();
-    console.log('allroles = ' + allroles);
+    //console.log('allroles = ' + allroles);
     return res.status(200).json({
       status: true,
       content: {
@@ -90,7 +90,10 @@ router.get('/', auth, async (req, res) => {
   }
 
   return res.status(200).json({
-    status: false,
+    status: true,
+    content: {
+      data: [],
+    },
   });
 });
 

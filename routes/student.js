@@ -11,17 +11,17 @@ const Student = require('../models/Student');
 // @acess Private (student-create)
 router.post('/', auth, async (req, res) => {
   let user = await User.findOne({ roleId: req.user.user.roleId });
-  console.log('user = ' + user);
+  //console.log('user = ' + user);
 
   let roleid = await Role.findOne({
     _id: user.roleId,
     scopes: 'student-create',
   });
-  console.log('id = ' + roleid);
+  // console.log('id = ' + roleid);
 
-  console.log('req.body.name : ' + req.body.name);
-  console.log('req.body.id : ' + req.body.userId);
-  console.log('req.body.schoolId : ' + req.body.schoolId);
+  // console.log('req.body.name : ' + req.body.name);
+  // console.log('req.body.id : ' + req.body.userId);
+  // console.log('req.body.schoolId : ' + req.body.schoolId);
   if (roleid) {
     let student = await Student.findOne({
       name: req.body.name,
@@ -53,6 +53,7 @@ router.post('/', auth, async (req, res) => {
   }
   return res.status(200).json({
     status: false,
+    message: 'unauthorized',
   });
 });
 
@@ -61,7 +62,7 @@ router.post('/', auth, async (req, res) => {
 // @acess Private (student-get)
 router.get('/', auth, async (req, res) => {
   let user = await User.findOne({ roleId: req.user.user.roleId });
-  console.log('user = ' + user);
+  //console.log('user = ' + user);
 
   let roleid = await Role.findOne({
     _id: user.roleId,
@@ -76,6 +77,10 @@ router.get('/', auth, async (req, res) => {
       },
     });
   }
+  return res.status(200).json({
+    status: false,
+    message: 'unauthorized',
+  });
 });
 
 module.exports = router;

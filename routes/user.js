@@ -27,8 +27,8 @@ router.post(
     ).isLength({ min: 6 }),
   ],
   async (req, res) => {
-    console.log('request body =');
-    console.log(req.body);
+    // console.log('request body =');
+    // console.log(req.body);
 
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
@@ -58,12 +58,12 @@ router.post(
       });
 
       bcrypt.hash(user.password, saltRounds, function (err, hash) {
-        console.log('user: ' + user);
-        console.log('user pass: ' + user.password);
+        // console.log('user: ' + user);
+        // console.log('user pass: ' + user.password);
         user.password = hash;
         user.save();
-        console.log('user pass: ' + user.password);
-        console.log('hash=' + hash);
+        // console.log('user pass: ' + user.password);
+        // console.log('hash=' + hash);
         return res.status(200).json({
           status: true,
           content: {
@@ -82,9 +82,11 @@ router.post(
         });
       });
     } catch (err) {
-      console.log(err);
-      console.log('LINE 96 error in POST api/users');
-      res.status(500).send('server error');
+      // console.log(err);
+      // console.log('LINE 96 error in POST api/users');
+      return res
+        .status(400)
+        .json({ status: false, errors: [{ message: 'something went wrong' }] });
     }
   }
 );
@@ -168,8 +170,9 @@ router.get('/', auth, async (req, res) => {
     });
   }
 
-  return res.status(200).json({
+  return res.status(400).json({
     status: false,
+    message: 'unauthorized',
   });
 });
 
@@ -187,7 +190,7 @@ router.get('/:id', auth, async (req, res) => {
   //console.log('req.params.id = ' + req.params.id);
   if (idd) {
     let single_user = await User.findOne({ _id: req.params.id });
-    console.log('single_user = ' + single_user);
+    //console.log('single_user = ' + single_user);
     return res.status(200).json({
       status: true,
       content: {
@@ -196,8 +199,9 @@ router.get('/:id', auth, async (req, res) => {
     });
   }
 
-  return res.status(200).json({
+  return res.status(400).json({
     status: false,
+    message: 'unauthorized',
   });
 });
 
