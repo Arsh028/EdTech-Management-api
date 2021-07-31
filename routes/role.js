@@ -13,8 +13,7 @@ router.post(
   '/',
   [
     check('name', 'Name is required').not().isEmpty(),
-    //TODO check if scope is an array
-    check('scope', 'Please include a scope').exists(),
+    check('scope', 'Please include a scope').not().exists(),
   ],
   async (req, res) => {
     console.log('request body =');
