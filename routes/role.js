@@ -11,10 +11,7 @@ const Role = require('../models/Role');
 // @acess Public
 router.post(
   '/',
-  [
-    check('name', 'Name is required').not().isEmpty(),
-    check('scope', 'Please include a scope').not().exists(),
-  ],
+  [check('name', 'Name is required').not().isEmpty()],
   async (req, res) => {
     console.log('request body =');
     console.log(req.body);
