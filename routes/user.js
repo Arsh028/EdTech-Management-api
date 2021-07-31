@@ -146,7 +146,7 @@ router.post('/signin', async (req, res) => {
   });
 });
 
-// @route POST /signin
+// @route POST /
 // @des  get all users
 // @acess Private (user-get)
 router.get('/', auth, async (req, res) => {
