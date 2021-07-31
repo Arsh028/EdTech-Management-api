@@ -6,20 +6,27 @@ const auth = require('../middlewares/auth');
 const Role = require('../models/Role');
 const Student = require('../models/Student');
 
-// @route POST /create
-// @des  Register a user
-// @acess Private (school-create)
-router.post('/create', auth, async (req, res) => {
+// @route POST /
+// @des  create a student
+// @acess Private (student-create)
+router.post('/', auth, async (req, res) => {
   let user = await User.findOne({ roleId: req.user.user.roleId });
   console.log('user = ' + user);
 
-  //let id = await Role.findOne({ _id: user.roleId, scopes: 'school-create' });
-  console.log('id = ' + id);
-  if (id) {
+  let roleid = await Role.findOne({
+    _id: user.roleId,
+    scopes: 'student-create',
+  });
+  console.log('id = ' + roleid);
+
+  console.log('req.body.name : ' + req.body.name);
+  console.log('req.body.id : ' + req.body.userId);
+  console.log('req.body.schoolId : ' + req.body.schoolId);
+  if (roleid) {
     let student = await Student.findOne({
       name: req.body.name,
-      userId: req.user.user.id,
-      schoolId: req.user.user.schoolId,
+      userId: req.body.userId,
+      schoolId: req.body.schoolId,
     });
     //if user already exist send msg
     if (student) {
@@ -30,8 +37,8 @@ router.post('/create', auth, async (req, res) => {
     }
     student = new Student({
       name: req.body.name,
-      userId: req.user.user.id,
-      schoolId: req.user.user.schoolId,
+      userId: req.body.userId,
+      schoolId: req.body.schoolId,
     });
 
     await student.save();
@@ -41,6 +48,31 @@ router.post('/create', auth, async (req, res) => {
       status: true,
       content: {
         data: student,
+      },
+    });
+  }
+  return res.status(200).json({
+    status: false,
+  });
+});
+
+// @route GET /
+// @des  get all students
+// @acess Private (student-get)
+router.get('/', auth, async (req, res) => {
+  let user = await User.findOne({ roleId: req.user.user.roleId });
+  console.log('user = ' + user);
+
+  let roleid = await Role.findOne({
+    _id: user.roleId,
+    scopes: 'student-get',
+  });
+  if (roleid) {
+    let allStudents = await Student.find();
+    return res.status(200).json({
+      status: true,
+      content: {
+        data: allStudents,
       },
     });
   }

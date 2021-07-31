@@ -5,6 +5,7 @@ const User = require('../models/User');
 const auth = require('../middlewares/auth');
 const Role = require('../models/Role');
 const School = require('../models/School');
+const Student = require('../models/Student');
 
 // @route POST /
 // @des  create a school
@@ -76,4 +77,40 @@ router.get('/', auth, async (req, res) => {
     });
   }
 });
+
+router.get('/students', auth, async (req, res) => {
+  let user = await User.findOne({ roleId: req.user.user.roleId });
+  //console.log('user = ' + user);
+  let roleid = await Role.findOne({
+    _id: user.roleId,
+    scopes: 'school-students',
+  });
+  if (roleid) {
+    let allSchools = await School.find();
+    console.log('allschools = ' + allSchools);
+    const length = Object.keys(allSchools).length;
+    let obj = {};
+    let merged = { status: true };
+    for (let i = 0; i < length; i++) {
+      let students = await Student.find({ schoolId: allSchools[i]._id });
+      obj = {
+        content: {
+          data: {
+            _id: allSchools[i]._id,
+            name: allSchools[i].name,
+            city: allSchools[i].city,
+            state: allSchools[i].state,
+            country: allSchools[i].country,
+            students: [students],
+          },
+        },
+      };
+      console.log('obj: ' + JSON.stringify(obj));
+      merged = { ...merged, ...obj };
+      console.log('merged obj:' + JSON.stringify(merged));
+    }
+    return res.status(200).json(obj);
+  }
+});
+
 module.exports = router;
